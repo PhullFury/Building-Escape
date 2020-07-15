@@ -22,8 +22,32 @@ UGrabber::UGrabber()
 void UGrabber::BeginPlay()
 {
 	Super::BeginPlay();
+	//check physics handle
+	PhysicsHandle = GetOwner()->FindComponentByClass<UPhysicsHandleComponent>();
+	if (PhysicsHandle)
+	{
+		//PhysicsHandle found
+	}
+	else
+	{
+		UE_LOG(LogTemp, Error, TEXT("The PhysicsHandle component is refrenced but not attached to: %s"), *GetOwner()->GetName());
+	}
 
-	UE_LOG(LogTemp, Warning, TEXT("Grabber ready for duty!"));	
+	InputComponent = GetOwner()->FindComponentByClass<UInputComponent>();
+	if (InputComponent)
+	{
+		UE_LOG(LogTemp, Error, TEXT("The InputComponent is attached to: %s"), *GetOwner()->GetName());
+		InputComponent->BindAction("Grab", IE_Pressed, this, &UGrabber::Grab);
+	}
+	/*else
+	{
+		UE_LOG(LogTemp, Error, TEXT("The InputComponent is refrenced but not attached to: %s"), *GetOwner()->GetName());
+	}*/
+}
+
+void UGrabber::Grab()
+{
+	UE_LOG(LogTemp, Warning, TEXT("Grabber pressed"));
 }
 
 
@@ -45,7 +69,7 @@ void UGrabber::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompone
 	FString PlayerLocation = PlayerViewPointLocation.ToString();
 	FString PlayerRotation = PlayerVeiwPointRotation.ToString();
 
-	UE_LOG(LogTemp, Warning, TEXT("Location: %s, Rotation: %s"), *PlayerLocation, *PlayerRotation);
+	//UE_LOG(LogTemp, Warning, TEXT("Location: %s, Rotation: %s"), *PlayerLocation, *PlayerRotation);
 
 	//Draw a line from player showing reach
 	FVector LineTraceEnd = PlayerViewPointLocation + PlayerVeiwPointRotation.Vector() * Reach;
@@ -62,6 +86,22 @@ void UGrabber::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompone
 	);
 
 	//Ray Cast out to a certain distance (Reach)
+	FHitResult Hit;
+	FCollisionQueryParams TraceParams(FName(TEXT("")), false, GetOwner());
+	GetWorld()->LineTraceSingleByObjectType(
+		OUT Hit,
+		PlayerViewPointLocation,
+		LineTraceEnd,
+		FCollisionObjectQueryParams(ECollisionChannel::ECC_PhysicsBody),
+		TraceParams
+	);
+
 	//See what it hits
+	AActor* ActorHit = Hit.GetActor();
+
+	if (ActorHit)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Actor being hit is: %s"), *(ActorHit->GetName()));
+	}
 }
 
