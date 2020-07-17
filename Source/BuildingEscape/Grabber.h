@@ -27,8 +27,7 @@ protected:
 
 
 private:
-	UPROPERTY(EditAnywhere)
-	float Reach = 100.f;
+	float Reach = 200.f;
 
 	UPhysicsHandleComponent* PhysicsHandle = nullptr;
 	UInputComponent* InputComponent = nullptr;
@@ -37,5 +36,13 @@ private:
 	void Release();
 	void CheckPhysicsHandle();
 	void SetupInputComponent();
+
+	//Returns first actor with Physics body 
 	FHitResult GetFirstPhysicsBodyInreach() const;
+
+	//Return the line trace end
+	FVector GetPlayersReach() const;
+
+	//Get players position in the world
+	FVector GetPlayersWorldPos() const;
 };
